@@ -15,6 +15,25 @@ $date = date("Y-m-d H:i:s");
 
 $db = BD::connect();
 
+
+function createTable(){
+	global $stmt, $db;
+try{
+$stmt->execute();
+}catch(PDOException){
+	$criate = $db->prepare("CREATE TABLE users (
+		id SERIAL PRIMARY KEY, 
+		user character varying(20) , 
+		pass character varying(50) , 
+		vk TINYINT(1) NULL 
+	  );");
+	$criate->execute();
+	$stmt->execute();
+	if(file_exists('../app/data/users.ibd')){
+		copy('../app/data/users.ibd', '../app/copy_data/copy_users.ibd');
+	}
+}}
+
 if(!empty($_POST['reg'])){
 	if(!empty($_POST['username'])){
 	if($roleVK){
@@ -22,12 +41,13 @@ if(!empty($_POST['reg'])){
 		$stmt->bindParam(':user', $username);
 		$stmt->bindParam(':pass', $hashedPass);
 		$stmt->bindParam(':vk', $int);
-		$stmt->execute();
+		createTable();
 	}else{
 		$stmt = $db->prepare("INSERT INTO users (user, pass) VALUES (:user, :pass)");
 		$stmt->bindParam(':user', $username);
 		$stmt->bindParam(':pass', $hashedPass);
-		$stmt->execute();
+
+		createTable();
 	}
 }	
 		
